@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npx nodemon src/index.ts"
+    "start": "npx nodemon src/index.ts",
+    "migrate":"sequelize-cli db:migrate",
+    "rollback":"sequelize-cli db:migrate:undo"
   },
   "author": "",
   "license": "ISC",
