@@ -12,3 +12,13 @@ export class InternalServerError implements AppError{
         this.name="Internal Server Error"
     }
 }
+export class Notfound implements AppError{
+     statusCode: number
+    message: string
+    name: string
+    constructor(message:string){
+        this.message=message,
+        this.statusCode=500,
+        this.name="Not found error"
+    }
+}

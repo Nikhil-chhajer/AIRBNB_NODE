@@ -1,4 +1,4 @@
-import { CreationOptional, InferAttributes, InferCreationAttributes, Model } from "sequelize";
+import { CreationOptional, InferAttributes, InferCreationAttributes, Model, DataTypes } from "sequelize";
 import sequelize from "./sequelize";
 
 class Hotel extends Model<InferAttributes<Hotel>, InferCreationAttributes<Hotel>> {
@@ -8,49 +8,57 @@ class Hotel extends Model<InferAttributes<Hotel>, InferCreationAttributes<Hotel>
     declare location: string;
     declare createdAt: CreationOptional<Date>;
     declare updatedAt: CreationOptional<Date>;
-    declare rating: number;
-    declare rating_count: number;
+    declare rating?: number;
+    declare rating_count?: number;
+    declare deleted_at: CreationOptional<Date | null>;
 }
+
 Hotel.init({
     id: {
-        type: 'INTEGER',
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
     },
     name: {
-        type: "STRING",
+        type: DataTypes.STRING,
         allowNull: false,
     },
     address: {
-        type: "STRING",
+        type: DataTypes.STRING,
         allowNull: false,
     },
     location: {
-        type: "STRING",
+        type: DataTypes.STRING,
         allowNull: false,
     },
     createdAt: {
-        type: 'TIMESTAMP',
-        defaultValue: new Date(),
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
     },
     updatedAt: {
-        type: 'TIMESTAMP',
-        defaultValue: new Date(),
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
     },
     rating: {
-        type: 'FLOAT',
+        type: DataTypes.FLOAT,
+        allowNull: true,
         defaultValue: null,
     },
     rating_count: {
-        type: 'INTEGER',
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: null,
+    },
+    deleted_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
         defaultValue: null,
     }
-},
-    {
-        tableName: 'hotels',
-        sequelize:sequelize,
-        underscored: true,
-        timestamps: true,
-    }
-);
+}, {
+    tableName: 'hotels',
+    sequelize: sequelize,
+    underscored: true,
+    timestamps: true,
+});
+
 export default Hotel;
