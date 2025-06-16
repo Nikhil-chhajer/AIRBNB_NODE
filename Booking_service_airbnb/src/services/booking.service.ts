@@ -1,11 +1,12 @@
 
-import { confirmBooking, createBooking } from "../repositories/booking";
+import { confirmBooking, createBooking, getIdempotencyKeywithlock } from "../repositories/booking";
 import { createIdempotencyKey } from "../repositories/booking"; 
 import { generateIdempotencyKey } from "../utils/generateidempotencyKey";
-import { getIdempotencyKey } from "../repositories/booking";
 import { InternalServerError } from "../utils/app.error";
+import prismaClient from "../prisma/client";
 import { finalizeIdempotencyKey } from "../repositories/booking";
 import { createBookingDto } from "../dto/booking.dto";
+
 
 export async function createBookingService(BookingDto:createBookingDto) {
     try {
@@ -19,8 +20,9 @@ export async function createBookingService(BookingDto:createBookingDto) {
     
 }
 export async function confirmBookingService(idempotencyKey: string) {
-    try {
-        const idempotencyKeyData = await getIdempotencyKey(idempotencyKey);
+    return await prismaClient.$transaction(async (tx) => {
+        // Check if the idempotency key exists and is not finalized         
+        const idempotencyKeyData= await getIdempotencyKeywithlock(tx,idempotencyKey);
         if(!idempotencyKeyData) {
             throw new InternalServerError("Idempotency key not found");   
         }
@@ -28,17 +30,13 @@ export async function confirmBookingService(idempotencyKey: string) {
             console.log("Idempotency key data",idempotencyKeyData);
             throw new InternalServerError ("Booking already finalized" );
         }
-        //paymen here
-        const booking = await confirmBooking(idempotencyKeyData.bookingId);
-        await finalizeIdempotencyKey(idempotencyKey);
+        //payment here
+        const booking = await confirmBooking(tx,idempotencyKeyData.bookingId);
+        await finalizeIdempotencyKey(tx,idempotencyKey);
         return booking;
+    })
         
-    } catch (error) {
-        if(error instanceof InternalServerError) {
-            throw error; // Re-throw known errors   
-        }
-        throw new InternalServerError("Error finalizing booking");
-    }
+   
 }
 // export async function finalizeBookingService(bookingId: string) {
 //     try {
