@@ -5,6 +5,8 @@ dotenv.config();
 
 type Serverconfig={
     PORT:Number
+    REDIS_SERVER_URL:string,
+    TTL:number
 }
 type DBConfig={
     DB_HOST:string,
@@ -20,5 +22,7 @@ export const dbConfig:DBConfig={
 }
 export const serverconfig:Serverconfig={
 
-    PORT:Number(process.env.PORT)||3001
+    PORT:Number(process.env.PORT)||3001,
+    REDIS_SERVER_URL:process.env.REDIS_SERVER_URL||'redis://localhost:6379',
+    TTL:Number(process.env.TTL)||50000
 }
