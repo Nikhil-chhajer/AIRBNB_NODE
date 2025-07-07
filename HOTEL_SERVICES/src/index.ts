@@ -12,6 +12,7 @@ import { genericErrorHandler } from "./middlewares/error.middleware";
 // import Hotel from "./db/models/hotel";
 const app=express();
 const PORT=serverconfig.PORT;
+console.log("server config",PORT);
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
 
@@ -21,7 +22,7 @@ app.use('/api/v2',v2Router)
 
 
 app.listen(PORT,async ()=>{
-logger.info("server started at",PORT);
+logger.info("server started at",{PORT});
 //whatever we pass in {} in this is taken as data in logger.config file if donot use {} the data obj is empty
 logger.info("hello",{data:"hello nick"})
 // const obj={

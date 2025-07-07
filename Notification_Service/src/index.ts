@@ -8,7 +8,7 @@ import { attachCorrelationIdMiddleware } from "./middlewares/correlation.middlew
 // import { z } from "zod/v4";
 import { genericErrorHandler } from "./middlewares/error.middleware";
 import { setupMailerWorker } from "./processors/email.processor";
-import { addEmailtoQueue } from "./producers/email.producer";
+// import { addEmailtoQueue } from "./producers/email.producer";
 // import { renderMailTemplate } from "./templates/template.handler";
 const app = express();
 const PORT = serverConfig.PORT;
@@ -35,15 +35,15 @@ app.listen(PORT, async () => {
 
     setupMailerWorker();
     logger.info("Mailer worker setup completed")
-    await addEmailtoQueue({
-        to:"nikhil.chhajer80@gmail.com",
-        subject:"this is testing mail",
-        templateId:"welcome",
-        params:{
-            name:"nikhil",
-            appName:"algocamp"
-        }
-    })
+    // await addEmailtoQueue({
+    //     to:"nikhil.chhajer80@gmail.com",
+    //     subject:"this is testing mail",
+    //     templateId:"welcome",
+    //     params:{
+    //         name:"nikhil",
+    //         appName:"algocamp"
+    //     }
+    // })
 
     // const response=await renderMailTemplate('welcome',{
     //     name: "Nikhil",
