@@ -19,3 +19,8 @@ func (uc *UserController) GetUserById(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("user registered"))
 
 }
+func (uc *UserController) Login(w http.ResponseWriter, r *http.Request) {
+	uc.UserService.LoginUser()
+	w.Write([]byte("user registered"))
+
+}
