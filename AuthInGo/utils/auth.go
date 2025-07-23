@@ -7,6 +7,7 @@ import (
 )
 
 func HashedPassword(plainPassword string) (string, error) {
+	fmt.Println()
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(plainPassword), bcrypt.DefaultCost)
 	if err != nil {
 		fmt.Println("Error hashing Password")
@@ -16,6 +17,7 @@ func HashedPassword(plainPassword string) (string, error) {
 
 }
 func CheckPasswordHash(hashedPassword string, plainPassword string) bool {
+
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(plainPassword))
 
 	return err == nil
