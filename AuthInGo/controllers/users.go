@@ -4,6 +4,7 @@ import (
 	"AuthInGo/dto"
 	"AuthInGo/services"
 	"AuthInGo/utils"
+	"fmt"
 	"net/http"
 )
 
@@ -17,9 +18,30 @@ func NewUserController(_userService services.UserService) *UserController {
 	}
 }
 func (uc *UserController) GetUserById(w http.ResponseWriter, r *http.Request) {
-	uc.UserService.GetUserById()
-	w.Write([]byte("user registered"))
+	fmt.Println("Fetching user by ID in UserController")
+	// extract userid from url parameters
+	userId := r.URL.Query().Get("id")
+	if userId == "" {
+		userId = r.Context().Value("userID").(string) // Fallback to context if not in URL
+	}
 
+	fmt.Println("User ID from context or query:", userId)
+
+	if userId == "" {
+		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "User ID is required", fmt.Errorf("missing user ID"))
+		return
+	}
+	user, err := uc.UserService.GetUserById(userId)
+	if err != nil {
+		utils.WriteJsonErrorResponse(w, http.StatusInternalServerError, "Failed to fetch user", err)
+		return
+	}
+	if user == nil {
+		utils.WriteJsonErrorResponse(w, http.StatusNotFound, "User not found", fmt.Errorf("user with ID  not found", userId))
+		return
+	}
+	utils.WriteJsonSuccessResponse(w, http.StatusOK, "User fetched successfully", user)
+	fmt.Println("User fetched successfully:", user)
 }
 func (uc *UserController) Login(w http.ResponseWriter, r *http.Request) {
 	payload := r.Context().Value("payload").(dto.LoginUserRequestDTO)

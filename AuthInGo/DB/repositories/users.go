@@ -9,7 +9,7 @@ import (
 )
 
 type UserRepository interface {
-	GetUserById() (*models.User, error)
+	GetUserById(id string) (*models.User, error)
 	Create(username string, email string, hashedpassword string) (*models.User, error)
 	GetAll() ([]*models.User, error)
 	DeleteByID(id int64) error
@@ -88,11 +88,12 @@ func (u *UserRepositoryImpl) Create(username string, email string, hashedpasswor
 
 }
 
-func (u *UserRepositoryImpl) GetUserById() (*models.User, error) {
+func (u *UserRepositoryImpl) GetUserById(id string) (*models.User, error) {
+
 	//step 1:Prepare Query
-	query := "SELECT * FROM User WHERE id = ?"
+	query := "SELECT * FROM Users WHERE id = ?"
 	//step 2:Execute the query
-	row := u.db.QueryRow(query, 1) //return single row
+	row := u.db.QueryRow(query, id) //return single row
 	//u.db.Query() return multiple rows
 	//step 3 :Process the result of the query
 	user := &models.User{}
