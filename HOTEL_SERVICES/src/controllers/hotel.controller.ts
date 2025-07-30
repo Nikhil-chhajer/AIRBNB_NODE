@@ -16,6 +16,7 @@ export async function createHotelHandler(req:Request,res:Response,next:NextFunct
 }
 export async function getHotelById(req:Request,res:Response,next:NextFunction){
     try {
+        console.log(req.body)
         const hotel= await getHotelByIdService(Number(req.params.id));
         if (!hotel) {
              res.status(404).json({
