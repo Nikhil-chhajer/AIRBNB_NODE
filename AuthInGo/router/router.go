@@ -12,7 +12,7 @@ type Router interface {
 	Register(r chi.Router)
 }
 
-func SetupRouter(UserRouter Router) *chi.Mux {
+func SetupRouter(UserRouter Router, RoleRouter Router) *chi.Mux {
 	chiRouter := chi.NewRouter()
 	chiRouter.Use(middlewares.RateLimitMiddleware)
 	chiRouter.HandleFunc("/fakestoreservice/*", utils.ProxyToService("https://fakestoreapi.in", "/fakestoreservice"))
@@ -20,6 +20,7 @@ func SetupRouter(UserRouter Router) *chi.Mux {
 	chiRouter.HandleFunc("/api/v1/bookingservice/*", utils.ProxyServiceToBooking("http://localhost:3001", "/api/v1/bookingservice"))
 	chiRouter.Get("/ping", controllers.PingHandler)
 	UserRouter.Register(chiRouter)
+	RoleRouter.Register(chiRouter)
 	return chiRouter
 }
 

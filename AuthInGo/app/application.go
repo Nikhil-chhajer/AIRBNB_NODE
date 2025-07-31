@@ -1,11 +1,12 @@
 package app
 
 import (
-	db "AuthInGo/DB/repositories"
-	repo "AuthInGo/DB/repositories"
 	dbConfig "AuthInGo/config/db"
 	config "AuthInGo/config/env"
 	"AuthInGo/controllers"
+
+	// db "AuthInGo/db/repositories"
+	repo "AuthInGo/db/repositories"
 	"AuthInGo/router"
 	"AuthInGo/services"
 	"fmt"
@@ -19,7 +20,7 @@ type Config struct {
 }
 type Application struct {
 	Config Config
-	Store  db.Storage
+	// Store  db.Storage
 }
 
 func NewConfig() Config {
@@ -34,7 +35,7 @@ func NewConfig() Config {
 func NewApplication(cfg Config) *Application {
 	return &Application{
 		Config: cfg,
-		Store:  *db.NewStorage(),
+		// Store:  *db.NewStorage(),
 	}
 }
 func (app *Application) Run() error {
@@ -44,14 +45,21 @@ func (app *Application) Run() error {
 		return err
 	}
 	ur := repo.NewUserRepository(db)
+	rr := repo.NewRoleRepository(db)
+	rpr := repo.NewRolePermissionRepository(db)
+	urr := repo.NewUserRoleRepository(db)
 	us := services.NewUserService(ur)
+	rs := services.NewRoleService(rr, rpr, urr)
 	uc := controllers.NewUserController(us)
+	rc := controllers.NewRoleController(rs)
 	uRouter := router.NewUserRouter(uc)
+	rRouter := router.NewRoleRouter(rc)
+
 	server := &http.Server{
 		Addr:         app.Config.Addr,
-		Handler:      router.SetupRouter(uRouter), //todo chi will setuo here
-		ReadTimeout:  10 * time.Second,            // set read timeout to 10 sec
-		WriteTimeout: 10 * time.Second,            // set write timeout to 10 sec
+		Handler:      router.SetupRouter(uRouter, rRouter),
+		ReadTimeout:  10 * time.Second, // Set read timeout to 10 seconds
+		WriteTimeout: 10 * time.Second, // Set write timeout to 10 seconds
 	}
 	fmt.Println("starting server at", app.Config.Addr)
 	return server.ListenAndServe()

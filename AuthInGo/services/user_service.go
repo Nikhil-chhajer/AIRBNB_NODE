@@ -1,8 +1,8 @@
 package services
 
 import (
-	db "AuthInGo/DB/repositories"
 	env "AuthInGo/config/env"
+	repositories "AuthInGo/db/repositories"
 	"AuthInGo/dto"
 	"AuthInGo/models"
 	"AuthInGo/utils"
@@ -17,10 +17,10 @@ type UserService interface {
 	LoginUser(payload *dto.LoginUserRequestDTO) (string, error)
 }
 type UserServiceImpl struct {
-	userRepository db.UserRepository
+	userRepository repositories.UserRepository
 }
 
-func NewUserService(_userRepo db.UserRepository) UserService {
+func NewUserService(_userRepo repositories.UserRepository) UserService {
 	return &UserServiceImpl{
 		userRepository: _userRepo,
 	}

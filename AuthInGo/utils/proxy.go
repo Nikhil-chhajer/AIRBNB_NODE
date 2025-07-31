@@ -20,13 +20,8 @@ func ProxyToService(targetBaseUrl string, pathPrefix string) http.HandlerFunc {
 	proxy.Director = func(r *http.Request) {
 		originalDirector(r)
 		r.Host = target.Host //host of target (local host ) becomes the host of our request
-		fmt.Println(" the target base url  is :", targetBaseUrl)
-		fmt.Println("the original request by user is :", r.URL.Path)
-		fmt.Println("path prefix is:", pathPrefix)
-		r.URL.Path = strings.TrimPrefix(r.URL.Path, pathPrefix)
-		fmt.Println("modifying the request to :", r.URL.Path)
 
-		fmt.Println("proxing the request to :", targetBaseUrl+r.URL.Path)
+		r.URL.Path = strings.TrimPrefix(r.URL.Path, pathPrefix)
 
 		//eg: localhost/hotel/service/:id and we want to trim /hotel/service then pathprefix will be /hotel/service
 		if userId, ok := r.Context().Value("userID").(string); ok {
@@ -48,16 +43,13 @@ func ProxyServiceToHotel(targetBaseUrl string, pathPrefix string) http.HandlerFu
 	proxy.Director = func(r *http.Request) {
 		originalDirector(r)
 		r.Host = target.Host //host of target (local host ) becomes the host of our request
-		fmt.Println(" the target base url  is :", targetBaseUrl)
-		fmt.Println("the original request by user is :", r.URL.Path)
-		fmt.Println("path prefix is:", pathPrefix)
+
 		r.URL.Path = strings.TrimPrefix(r.URL.Path, pathPrefix)
-		fmt.Println("modifying the request to :", r.URL.Path)
+
 		addedstring := "/api/v1/hotels"
 		newstring := addedstring + r.URL.Path
-		fmt.Println("neww sting is", newstring)
+
 		r.URL.Path = newstring
-		fmt.Println("proxing the request to :", targetBaseUrl+r.URL.Path)
 
 		//eg: localhost/hotel/service/:id and we want to trim /hotel/service then pathprefix will be /hotel/service
 		if userId, ok := r.Context().Value("userID").(string); ok {
@@ -79,16 +71,13 @@ func ProxyServiceToBooking(targetBaseUrl string, pathPrefix string) http.Handler
 	proxy.Director = func(r *http.Request) {
 		originalDirector(r)
 		r.Host = target.Host //host of target (local host ) becomes the host of our request
-		fmt.Println(" the target base url  is :", targetBaseUrl)
-		fmt.Println("the original request by user is :", r.URL.Path)
-		fmt.Println("path prefix is:", pathPrefix)
+
 		r.URL.Path = strings.TrimPrefix(r.URL.Path, pathPrefix)
-		fmt.Println("modifying the request to :", r.URL.Path)
+
 		addedstring := "/api/v1/booking"
 		newstring := addedstring + r.URL.Path
-		fmt.Println("neww sting is", newstring)
+
 		r.URL.Path = newstring
-		fmt.Println("proxing the request to :", targetBaseUrl+r.URL.Path)
 
 		//eg: localhost/hotel/service/:id and we want to trim /hotel/service then pathprefix will be /hotel/service
 		if userId, ok := r.Context().Value("userID").(string); ok {
