@@ -5,14 +5,15 @@
   "main": "index.js",
   "scripts": {
     "start": "npx nodemon src/index.ts",
-    "migrate":"sequelize-cli db:migrate",
-    "rollback":"sequelize-cli db:migrate:undo"
+    "migrate": "sequelize-cli db:migrate",
+    "rollback": "sequelize-cli db:migrate:undo"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/express": "^5.0.1",
     "@types/node": "^22.14.1",
+    "@types/redis": "^4.0.11",
     "express": "^5.1.0",
     "nodemon": "^3.1.9",
     "sequelize-cli": "^6.6.3",
@@ -20,8 +21,11 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "@types/ioredis": "^5.0.0",
+    "bullmq": "^5.56.9",
     "dotenv": "^16.5.0",
     "mysql2": "^3.14.1",
+    "redis": "^5.8.0",
     "sequelize": "^6.37.7",
     "uuid": "^11.1.0",
     "winston": "^3.17.0",

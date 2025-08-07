@@ -20,7 +20,7 @@ let connection: Redis;
         return () => {
             if (!connection) {
                 connection = new Redis(redisConfig);
-                console.log("hello i  am inseide redis.congi")
+             
                 return connection;
             }
             console.log('Connecting to Redis...');

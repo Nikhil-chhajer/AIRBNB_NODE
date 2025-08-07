@@ -8,6 +8,7 @@ abstract class BaseRepository<T extends Model>{
 
     }
     async findById(id:number):Promise<T| null>{
+        console.log("the id is",id);
         const record = await this.model.findByPk(id);
         if(!record){
             return null;

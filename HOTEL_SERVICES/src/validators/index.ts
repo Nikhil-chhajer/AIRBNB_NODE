@@ -7,7 +7,7 @@ export const validateRequestBody=(schema:AnyZodObject)=>{
         try {
             await schema.parse(req.body);
             const id=req.headers.correlationId
-            console.log(id)
+            console.log("hi iam inside validation ",id)
             logger.info("req body is valid",);
             next();
         } catch (error) {

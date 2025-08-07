@@ -19,7 +19,16 @@ export async function createBookingService(BookingDto: createBookingDto) {
         const bookingResource = `hotel:${BookingDto.hotelId}`;
         await redlock.acquire([bookingResource], ttl);
 
-        const booking = await createBooking({ userId: BookingDto.userId, hotelId: BookingDto.hotelId, totalGuests: BookingDto.totalGuests, bookingAmount: BookingDto.bookingAmount });
+        const booking = await createBooking({ 
+            userId: BookingDto.userId, 
+            hotelId: BookingDto.hotelId, 
+            totalGuests: BookingDto.totalGuests, 
+            bookingAmount: BookingDto.bookingAmount,
+            checkInDate:BookingDto.checkInDate,
+            checkOutDate:BookingDto.checkOutDate,
+            roomCategoryId:BookingDto.roomCategoryId
+            }
+        );
         const idempotencyKey = generateIdempotencyKey();
         await createIdempotencyKey(idempotencyKey, booking.id);
         return { bookingId: booking, idempotencyKey: idempotencyKey };

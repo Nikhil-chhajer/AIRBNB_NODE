@@ -8,6 +8,7 @@ import { attachCorrelationIdMiddleware } from "./middlewares/correlation.middlew
 
 import sequelize from "./db/models/sequelize";
 import { genericErrorHandler } from "./middlewares/error.middleware";
+import { setupRoomGenerator } from "./processor/room.processors";
 
 // import Hotel from "./db/models/hotel";
 const app=express();
@@ -17,7 +18,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
 
 app.use(attachCorrelationIdMiddleware)
-app.use('/api',v1Router)
+app.use('/api/v1',v1Router)
 app.use('/api/v2',v2Router)
 
 
@@ -37,6 +38,7 @@ logger.info("hello",{data:"hello nick"})
 // console.log(objschema.parse(obj));
     await sequelize.authenticate();
     logger.info("Database connection has been established successfully.");
+    setupRoomGenerator()
     app.use(genericErrorHandler)
  
 
