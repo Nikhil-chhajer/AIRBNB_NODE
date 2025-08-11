@@ -10,13 +10,17 @@ export const createBookingHandler=async(req:Request, res:Response, next:NextFunc
             booking
         });
     } catch (error) {
+        if(error instanceof InternalServerError){
+            console.error("Error creating booking:", error.message); 
+            throw new InternalServerError(error.message);   
+        }
         throw new InternalServerError("Error creating booking");
     }
 }
 export const confirmBookingHandler=async(req:Request, res:Response, next:NextFunction)=> {
     try {
         const booking=await confirmBookingService(req.params.idempotencyKey) 
-        console.log("the ",booking)
+        console.log("the booking is ",booking)
       // Logic to confirm booking
         res.status(200).json({
             message: "Booking confirmed successfully",

@@ -18,3 +18,19 @@ export const validateRequestBody=(schema:AnyZodObject)=>{
         }
     }
 }
+export const validateQueryParams=(schema:AnyZodObject)=>{
+    return async (req:Request,res:Response,next:NextFunction):Promise<void>=>{
+        try {
+            await schema.parse(req.query);
+            const id=req.headers.correlationId
+            console.log("hi iam inside validation ",id)
+            logger.info("query params are valid",);
+            next();
+        } catch (error) {
+             res.status(400).json({
+                message:"invalid query params",
+                error:error
+            });
+        }
+    }
+}

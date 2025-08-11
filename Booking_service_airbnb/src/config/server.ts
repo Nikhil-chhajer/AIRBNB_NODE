@@ -6,7 +6,8 @@ dotenv.config();
 type Serverconfig={
     PORT:Number
     REDIS_SERVER_URL:string,
-    TTL:number
+    TTL:number,
+    HOTEL_SERVICE_URL:string
 }
 type DBConfig={
     DB_HOST:string,
@@ -24,5 +25,6 @@ export const serverconfig:Serverconfig={
 
     PORT:Number(process.env.PORT)||3001,
     REDIS_SERVER_URL:process.env.REDIS_SERVER_URL||'redis://localhost:6379',
-    TTL:Number(process.env.TTL)||50000
+    TTL:Number(process.env.TTL)||50000,
+    HOTEL_SERVICE_URL:process.env.HOTEL_SERVICE_URL||'http://localhost:3000/api/v1/'
 }

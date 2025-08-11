@@ -3,8 +3,8 @@ import {serverconfig} from './config/server'
 import v1Router from "./routers/v1/index.router"; 
 import v2Router from "./routers/v2/index.router";
 import logger from "./config/logger.config";
-import { addEmailtoQueue } from "./producers/email.producer";
-import { NotificationDto } from "./dto/notification.dto";
+// import { addEmailtoQueue } from "./producers/email.producer";
+// import { NotificationDto } from "./dto/notification.dto";
 import { attachCorrelationIdMiddleware } from "./middlewares/correlation.middleware";
 
 // import { z } from "zod/v4";
@@ -26,19 +26,19 @@ logger.info("hello",{data:"hello nick"})
 //     name:"nikhil",
 //     age:1
 // }
-for (let i = 0; i < 10; i++) {
-    const sampleNotification :NotificationDto={
-    to:`sample mail ${i}`,
-    subject:"Sample email from booking service",
-    templateId:"sample-template-id",
-    params:{name:"john doe",
-        orderId:"12345",
-        orderAmount:100,    
-    }
-}
-    const email= await addEmailtoQueue(sampleNotification);
-    console.log("Sample email added to queue",email);
-}
+// for (let i = 0; i < 10; i++) {
+//     const sampleNotification :NotificationDto={
+//     to:`sample mail ${i}`,
+//     subject:"Sample email from booking service",
+//     templateId:"sample-template-id",
+//     params:{name:"john doe",
+//         orderId:"12345",
+//         orderAmount:100,    
+//     }
+// }
+//     const email= await addEmailtoQueue(sampleNotification);
+//     console.log("Sample email added to queue",email);
+// }
 
 
 
