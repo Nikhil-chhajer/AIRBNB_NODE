@@ -20,4 +20,6 @@ func (ur *UserRouter) Register(r chi.Router) {
 	r.With(middlewares.JWTAuthMiddleware).Get("/profile", ur.userController.GetUserById)
 	r.With(middlewares.UserloginRequestValidator).Post("/login", ur.userController.Login)
 	r.With(middlewares.UserCreateRequestValidator).Post("/signup", ur.userController.Signup)
+	r.With(middlewares.JWTAuthMiddleware).Post("/auth/mfa/setup", ur.userController.SetupMFA)
+	r.With(middlewares.JWTAuthMiddleware).Post("/auth/mfa/enable", ur.userController.EnableMFA)
 }

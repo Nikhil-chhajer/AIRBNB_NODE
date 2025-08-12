@@ -4,6 +4,7 @@ import (
 	"AuthInGo/dto"
 	"AuthInGo/services"
 	"AuthInGo/utils"
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -66,4 +67,47 @@ func (uc *UserController) Signup(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJsonSuccessResponse(w, http.StatusOK, "User registered successfully", user)
 
+}
+func (uc *UserController) SetupMFA(w http.ResponseWriter, r *http.Request) {
+	userId := r.Context().Value("userID").(string)
+
+	if userId == "" {
+		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "User ID is required", fmt.Errorf("missing user ID"))
+		return
+	}
+
+	response, err := uc.UserService.SetupMFA(userId)
+	if err != nil {
+		utils.WriteJsonErrorResponse(w, http.StatusInternalServerError, "Failed to setup MFA", err)
+		return
+	}
+
+	utils.WriteJsonSuccessResponse(w, http.StatusOK, "Success", response)
+}
+
+func (uc *UserController) EnableMFA(w http.ResponseWriter, r *http.Request) {
+	userId := r.Context().Value("userID").(string)
+
+	if userId == "" {
+		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "User ID is required", fmt.Errorf("missing user ID"))
+		return
+	}
+	var req dto.EnableMFARequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "Invalid request body", err)
+		return
+	}
+
+	if req.Code == "" {
+		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "MFA code is required", fmt.Errorf("missing MFA code"))
+		return
+	}
+
+	err := uc.UserService.EnableMFA(userId, req.Code)
+	if err != nil {
+		utils.WriteJsonErrorResponse(w, http.StatusUnauthorized, "Failed to enable MFA", err)
+		return
+	}
+
+	utils.WriteJsonSuccessResponse(w, http.StatusOK, "MFA enabled successfully", nil)
 }

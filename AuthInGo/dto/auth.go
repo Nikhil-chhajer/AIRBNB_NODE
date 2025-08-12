@@ -9,3 +9,9 @@ type SignUpUserRequestDTO struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=8"`
 }
+type EnableMFARequest struct {
+	Code string `json:"code"`
+}
+type SetupMFAResponseDTO struct {
+	QRCodeBase64 string `json:"qr_code_base64"`
+}
