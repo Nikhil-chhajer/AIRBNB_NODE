@@ -111,3 +111,18 @@ func (uc *UserController) EnableMFA(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJsonSuccessResponse(w, http.StatusOK, "MFA enabled successfully", nil)
 }
+func (uc *UserController) VerifyEmail(w http.ResponseWriter, r *http.Request) {
+	token := r.URL.Query().Get("token")
+	if token == "" {
+		utils.WriteJsonErrorResponse(w, http.StatusBadRequest, "Token is required", fmt.Errorf("missing token"))
+		return
+	}
+
+	err := uc.UserService.VerifyEmail(token)
+	if err != nil {
+		utils.WriteJsonErrorResponse(w, http.StatusInternalServerError, "Failed to verify email", err)
+		return
+	}
+
+	utils.WriteJsonSuccessResponse(w, http.StatusOK, "Email verified successfully", nil)
+}

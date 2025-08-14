@@ -12,6 +12,7 @@ import (
 )
 
 type UserService interface {
+	VerifyEmail(token string) error
 	GetUserById(id string) (*models.User, error)
 	CreateUser(payload *dto.SignUpUserRequestDTO) (*models.User, error)
 	LoginUser(payload *dto.LoginUserRequestDTO) (string, error)
@@ -20,11 +21,13 @@ type UserService interface {
 }
 type UserServiceImpl struct {
 	userRepository repositories.UserRepository
+	roleService    RoleService
 }
 
-func NewUserService(_userRepo repositories.UserRepository) UserService {
+func NewUserService(_userRepo repositories.UserRepository, roleService RoleService) UserService {
 	return &UserServiceImpl{
 		userRepository: _userRepo,
+		roleService:    roleService,
 	}
 }
 func (u *UserServiceImpl) CreateUser(payload *dto.SignUpUserRequestDTO) (*models.User, error) {
@@ -35,12 +38,44 @@ func (u *UserServiceImpl) CreateUser(payload *dto.SignUpUserRequestDTO) (*models
 		fmt.Println("Not able to hash the password")
 		return nil, err
 	}
+	user, _ := u.userRepository.GetByEmail(payload.Email)
 
-	user, err := u.userRepository.Create(payload.Username, payload.Email, hashedPassword)
-	if err != nil {
-		fmt.Println("User Not created")
-		return nil, nil
+	if user != nil && user.Is_Verified {
+		fmt.Println("User already exists with the given email")
+		return nil, fmt.Errorf("user already exists with email: %s", payload.Email)
 	}
+	if user != nil && !user.Is_Verified {
+		token, err := utils.GenerateEmailVerificationToken(payload.Email)
+		if err != nil {
+			fmt.Println("Error generating email token:", err)
+			return nil, err
+		}
+		verificationURL := fmt.Sprintf("http://localhost%s/auth/email/verify?token=%s", env.GetString("PORT", ":8080"), token)
+
+		err = utils.SendConfimationMail(verificationURL, []string{user.Email})
+		if err != nil {
+			fmt.Println("Error sending confirmation email:", err)
+
+		}
+		return user, nil
+	}
+	user, err = u.userRepository.Create(payload.Username, payload.Email, hashedPassword)
+	if err != nil {
+		fmt.Println("Error creating user:", err)
+		return nil, err
+	}
+	token, err := utils.GenerateEmailVerificationToken(user.Email)
+	if err != nil {
+		fmt.Println("Error generating email token:", err)
+		return nil, err
+	}
+
+	verificationURL := fmt.Sprintf("http://localhost%s/auth/email/verify?token=%s", env.GetString("PORT", ":8080"), token)
+	err = utils.SendConfimationMail(verificationURL, []string{user.Email})
+	if err != nil {
+		fmt.Println("Error sending confirmation email:", err)
+	}
+
 	return user, nil
 
 }
@@ -128,6 +163,39 @@ func (u *UserServiceImpl) EnableMFA(userID string, code string) error {
 
 	if err := u.userRepository.EnableMFA(user.Id); err != nil {
 		return fmt.Errorf("failed to enable MFA: %w", err)
+	}
+
+	return nil
+}
+func (u *UserServiceImpl) VerifyEmail(token string) error {
+	email, err := utils.VerifyEmailToken(token)
+	if err != nil {
+		return fmt.Errorf("invalid or expired verification link")
+	}
+
+	// Lookup user by email
+	user, err := u.userRepository.GetByEmail(email)
+	if err != nil || user == nil {
+		return fmt.Errorf("user not found")
+	}
+
+	if user.Is_Verified {
+		return fmt.Errorf("email already verified")
+	}
+
+	// Mark user as verified
+	if err := u.userRepository.MarkUserAsVerified(email); err != nil {
+		return err
+	}
+
+	// asign user role to user
+	role, err := u.roleService.GetRoleByName("user")
+	if err != nil {
+		return fmt.Errorf("default role not found: %w", err)
+	}
+
+	if err := u.roleService.AssignRoleToUser(user.Id, role.Id); err != nil {
+		return fmt.Errorf("failed to assign role: %w", err)
 	}
 
 	return nil

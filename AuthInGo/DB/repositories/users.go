@@ -18,6 +18,7 @@ type UserRepository interface {
 	SaveMFASecret(userId int64, secret string) error
 	GetMFASecret(userId int64) (string, error)
 	EnableMFA(userId int64) error
+	MarkUserAsVerified(email string) error
 }
 type UserRepositoryImpl struct {
 	db *sql.DB
@@ -116,14 +117,34 @@ func (u *UserRepositoryImpl) GetUserById(id string) (*models.User, error) {
 
 	return user, nil
 }
+func (u *UserRepositoryImpl) MarkUserAsVerified(email string) error {
+	query := "UPDATE users SET is_verified = true WHERE email = ?"
+	result, err := u.db.Exec(query, email)
+	if err != nil {
+		fmt.Println("Error marking user as verified:", err)
+		return err
+	}
+
+	rowsAffected, rowErr := result.RowsAffected()
+	if rowErr != nil {
+		fmt.Println("Error getting rows affected:", rowErr)
+		return rowErr
+	}
+	if rowsAffected == 0 {
+		fmt.Println("No rows were affected, user not marked as verified")
+		return nil
+	}
+	fmt.Println("User marked as verified successfully, rows affected:", rowsAffected)
+	return nil
+}
 func (u *UserRepositoryImpl) GetByEmail(email string) (*models.User, error) {
-	query := "SELECT id, email, password, mfa_secret,mfa_enabled FROM users WHERE email = ?"
+	query := "SELECT id, email, password,mfa_enabled,is_verified FROM users WHERE email = ?"
 
 	row := u.db.QueryRow(query, email)
 
 	user := &models.User{}
 
-	err := row.Scan(&user.Id, &user.Email, &user.Password, &user.MFASecret, &user.MFAEnabled) // hashed password
+	err := row.Scan(&user.Id, &user.Email, &user.Password, &user.MFAEnabled, &user.Is_Verified) // hashed password
 
 	if err != nil {
 		if err == sql.ErrNoRows {
